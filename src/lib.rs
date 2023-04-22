@@ -20,7 +20,7 @@ impl Config {
     }
 }
 
-fn get_music_dir(dir_path:&path::Path) -> io::Result<Option<path::PathBuf>>{
+fn browse_music_dir(dir_path:&path::Path) -> io::Result<Option<path::PathBuf>>{
     let mut entries:Vec<path::PathBuf> = Vec::new();
 
     println!("Listing directory {}", dir_path.display());
@@ -39,15 +39,16 @@ fn get_music_dir(dir_path:&path::Path) -> io::Result<Option<path::PathBuf>>{
     match choice {
         "" => Ok(Some(dir_path.to_path_buf())),
         "q" => Ok(None),
-        "u" => get_music_dir(dir_path.parent().unwrap()),
+        "u" => browse_music_dir(dir_path.parent().unwrap()),
         num => {
             let num:usize = num.parse().unwrap();
-            get_music_dir(entries[num].as_path())
+            browse_music_dir(entries[num].as_path())
         }
     }
 }
 
-fn visit_dirs(dir:&path::Path, files:&mut Vec<String>) -> io::Result<()> {
+fn list_files(dir:&path::Path) -> io::Result<Vec<String>> {
+    let mut files = Vec::new();
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
@@ -57,19 +58,18 @@ fn visit_dirs(dir:&path::Path, files:&mut Vec<String>) -> io::Result<()> {
             }
         }
     }
-    Ok(())
+    Ok(files)
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>>{
-    let music_dir = get_music_dir(path::Path::new(&config.music_dir))?;
+    let music_dir = browse_music_dir(path::Path::new(&config.music_dir))?;
     if let None = music_dir {
         return Ok(());
     }
     let music_dir = music_dir.unwrap();
     println!("Playing from {}", music_dir.display());
 
-    let mut files:Vec<String> = Vec::new();
-    visit_dirs(music_dir.as_path(), &mut files)?;
+    let files:Vec<String> = list_files(music_dir.as_path())?;
 
     for f in &files {
         println!("{}", f);
