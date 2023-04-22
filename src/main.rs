@@ -51,7 +51,8 @@ fn main() {
     println!("{}", music_dir.display());
 
     let mut files:Vec<String> = Vec::new();
-    visit_dirs(music_dir.as_path(), &mut files);
+    visit_dirs(music_dir.as_path(), &mut files)
+        .expect("failed to list directory");
 
     for f in &files {
         println!("{}", f);
