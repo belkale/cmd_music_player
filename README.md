@@ -7,4 +7,10 @@ $ cmd_music_player mpg123 path_to_music_directory
 
 Requires mpg123 or equivalent command line music player to be installed. 
 
+| Command | Meaning           |
+| ------- | ----------------- |
+| \<ENTER\> | Select current directory |
+| q       | quit player       |
+| u       | Go to parent      |
+
 The program lists the contents of the music directory along with an index. You can enter an index on any of the subdirectories to browse inside a subdirectory. Hitting enter on the listing will play the files in the current directory.

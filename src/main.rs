@@ -4,9 +4,10 @@ use std::io;
 use std::path;
 use std::process;
 
-fn get_music_dir(dir_path:&path::Path) -> io::Result<path::PathBuf>{
+fn get_music_dir(dir_path:&path::Path) -> io::Result<Option<path::PathBuf>>{
     let mut entries:Vec<path::PathBuf> = Vec::new();
 
+    println!("Listing directory {}", dir_path.display());
     for (index, entry) in fs::read_dir(dir_path)?.enumerate() {
         let entry = entry?;
         let path = entry.path();
@@ -18,13 +19,16 @@ fn get_music_dir(dir_path:&path::Path) -> io::Result<path::PathBuf>{
     let mut choice = String::new();
     io::stdin().read_line(&mut choice).expect("Failed to read line");
     let choice = choice.trim();
-
-    if choice == "" {
-        return Ok(dir_path.to_path_buf());
+    
+    match choice {
+        "" => Ok(Some(dir_path.to_path_buf())),
+        "q" => Ok(None),
+        "u" => get_music_dir(dir_path.parent().unwrap()),
+        num => {
+            let num:usize = num.parse().unwrap();
+            get_music_dir(entries[num].as_path())
+        }
     }
-
-    let choice:usize = choice.parse().unwrap();
-    return get_music_dir(entries[choice].as_path());
 }
 
 fn visit_dirs(dir:&path::Path, files:&mut Vec<String>) -> io::Result<()> {
@@ -44,9 +48,13 @@ fn main() {
     let player = &args[1];
     let file_path = &args[2];
 
-    println!("Filepath {file_path}");
-    let music_dir = get_music_dir(path::Path::new(file_path)).unwrap();
-    println!("{}", music_dir.display());
+    let music_dir = get_music_dir(path::Path::new(file_path))
+        .expect("failed to browse music directory");
+    if let None = music_dir {
+        return;
+    }
+    let music_dir = music_dir.unwrap();
+    println!("Playing from {}", music_dir.display());
 
     let mut files:Vec<String> = Vec::new();
     visit_dirs(music_dir.as_path(), &mut files)
