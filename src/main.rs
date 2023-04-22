@@ -32,9 +32,7 @@ fn visit_dirs(dir:&path::Path, files:&mut Vec<String>) -> io::Result<()> {
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
-            if path.is_dir() {
-                visit_dirs(path.as_path(), files)?;
-            } else {
+            if path.is_file() {
                 files.push(path.into_os_string().into_string().unwrap());
             }
         }
