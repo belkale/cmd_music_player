@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "music_player"
+name = "cmd_music_player"
 version = "0.1.0"
